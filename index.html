@@ -12,21 +12,15 @@
     </style>
   </head>
   <body style="text-align:center; width: 300px">
-
     <h2>Basic Web Worker Demo</h2>
-
     <div class="container controls">
       <button onclick=timedCount(0) type="button" name="button">Count WITHOUT Web Worker</button>
       <button onclick=makeWorker() type="button" name="button">Count WITH Web Worker</button>
+      <button onclick="document.getElementById('countme').innerHTML=0;" type="button" name="button">RESET</button>
     </div>
     <div class="container counter">
       <h1 id="countme">0</h1>
     </div>
-    <!-- Source for this http://jsfiddle.net/TWF2B/ -->
-    <!-- <div style="border: 1px solid #ddd; height: 200px;">
-        <h4>Animated CSS Test</h4>
-        <div class="ball">B</div>
-    </div> -->
 
     <div style="border: 1px solid #ddd; height: 200px;">
         <h4>Animated SVG Test</h4>
@@ -38,29 +32,30 @@
         <img style="width: 100px;" src="running.gif" alt="pikachu">
     </div>
 
-
-
     <script type="text/javascript">
+      // used by non web worker method
       const timedCount = (i) => {
         console.log('timedCount invoked', i)
-        while (i < 1000001) {
-            document.getElementById('countme').innerHTML = i;
-            i++
+        while (i < 200e6) {
+          // below doesn't actually update till process over
+          if (i % 100000 === 0) {
+              document.getElementById('countme').innerHTML = i;
+          }
+          i++;
         }
       };
 
       const makeWorker = () => {
         let myWorker = new Worker('worker.js');
-
         // sending a message to the worker
-        // myWorker.postMessage('hello worker')
         myWorker.postMessage(0)
 
         // handler for when worker sends messages back
         myWorker.onmessage = (e) => {
-          // console.log('Message from the worker thread...', e.data)
           document.getElementById('countme').innerHTML = e.data;
         };
+
+        // this example hasn't cleaned up the worker thread 
 
 
       }
